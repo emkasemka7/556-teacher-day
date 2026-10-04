@@ -1,0 +1,2034 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="author" content="Хасполадов Эмиль, 8Т">
+<title>Утро. Учительская. — Новелла ко Дню Учителя</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;700;800;900&family=Onest:wght@300;400;500;600;700&family=Caveat:wght@500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+  * {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow: hidden;
+    touch-action: manipulation;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  body {
+    font-family: 'Onest', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #0a0e1a;
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  /* ============================================================
+     ФОН
+     ============================================================ */
+  .bg-layer {
+    position: fixed;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    z-index: 0;
+    transition: opacity 1.2s ease-in-out;
+    will-change: opacity;
+  }
+  .bg-old { opacity: 1; }
+  .bg-new { opacity: 0; }
+  .bg-new.active { opacity: 1; }
+
+  .bg {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse at 30% 20%, rgba(255,180,80,0.18), transparent 60%),
+      radial-gradient(ellipse at 80% 80%, rgba(80,150,255,0.15), transparent 60%),
+      linear-gradient(180deg, rgba(10,14,26,0.4) 0%, rgba(10,14,26,0.8) 70%);
+  }
+
+  /* ============================================================
+     CG-СЦЕНА
+     ============================================================ */
+  .cg-stage {
+    position: fixed;
+    inset: 0;
+    z-index: 3;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    pointer-events: none;
+    overflow: hidden;
+    background: #000;
+  }
+  .cg-stage.active { display: flex; }
+
+  .cg-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transform: scale(1);
+    animation: cgZoomIn 10s ease-in-out forwards;
+  }
+
+  @keyframes cgZoomIn {
+    0%   { opacity: 0; transform: scale(1.00); }
+    10%  { opacity: 1; transform: scale(1.02); }
+    90%  { opacity: 1; transform: scale(1.15); }
+    100% { opacity: 0; transform: scale(1.15); }
+  }
+
+  .cg-stage::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at center, transparent 35%, rgba(10,14,26,0.75) 100%);
+    pointer-events: none;
+  }
+
+  body.cg-active .scene {
+    opacity: 0;
+    pointer-events: none;
+  }
+  body.cg-active .scene {
+    transition: opacity 0.5s ease 0.3s;
+  }
+  .scene {
+    transition: opacity 0.5s ease;
+  }
+
+  /* ==== ЗАГРУЗКА ==== */
+  .loader {
+    position: fixed; inset: 0;
+    background: linear-gradient(160deg, #0f1420 0%, #1a1e2e 100%);
+    z-index: 999;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 25px;
+    padding: 20px;
+    transition: opacity 0.6s ease, visibility 0.6s ease;
+  }
+  .loader.hidden { opacity: 0; visibility: hidden; }
+  .loader-title {
+    font-family: 'Unbounded', sans-serif;
+    font-weight: 800;
+    font-size: clamp(18px, 4.5vw, 26px);
+    color: #ffd700;
+    letter-spacing: 0;
+    text-shadow: 0 0 20px rgba(255,215,0,0.5);
+    animation: pulse 2s ease-in-out infinite;
+    text-align: center;
+  }
+  @keyframes pulse { 0%,100% { opacity: 0.7; } 50% { opacity: 1; } }
+  .loader-bar {
+    width: min(420px, 80vw);
+    height: 12px;
+    background: rgba(255,255,255,0.08);
+    border: 2px solid rgba(255,215,0,0.4);
+    border-radius: 20px;
+    overflow: hidden;
+  }
+  .loader-fill {
+    height: 100%; width: 0%;
+    background: linear-gradient(90deg, #ffd700, #ffa500);
+    border-radius: 20px;
+    transition: width 0.3s ease;
+    box-shadow: 0 0 20px rgba(255,215,0,0.7);
+  }
+  .loader-percent {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 16px;
+    color: #ffd700;
+    font-weight: 600;
+  }
+  .loader-status {
+    font-family: 'Onest', sans-serif;
+    font-size: 13px;
+    color: #8892a6;
+    min-height: 20px;
+    font-style: italic;
+    text-align: center;
+    letter-spacing: 0.5px;
+  }
+
+  /* ==== КНОПКА «ПРОПУСТИТЬ CG» ==== */
+  .cg-skip {
+    position: fixed;
+    bottom: max(30px, env(safe-area-inset-bottom, 30px));
+    right: max(30px, env(safe-area-inset-right, 30px));
+    z-index: 20;
+    padding: 14px 28px;
+    background: rgba(10, 15, 30, 0.9);
+    border: 2px solid rgba(255,215,0,0.6);
+    border-radius: 40px;
+    color: #ffd700;
+    font-family: 'Onest', sans-serif;
+    font-weight: 600;
+    font-size: clamp(14px, 3.6vw, 16px);
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease, transform 0.2s, background 0.2s;
+    backdrop-filter: blur(8px);
+    -webkit-user-select: none;
+    user-select: none;
+    min-height: 48px;
+  }
+  .cg-skip.visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .cg-skip:active { transform: scale(0.96); background: rgba(255,215,0,0.2); }
+
+  /* ==== КНОПКА ЗВУКА ==== */
+  .sound-toggle {
+    position: fixed;
+    top: max(15px, env(safe-area-inset-top, 15px));
+    left: 15px;
+    z-index: 50;
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.6);
+    border: 2px solid rgba(255,215,0,0.5);
+    color: #ffd700;
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: transform 0.2s, background 0.2s, opacity 0.5s ease;
+    backdrop-filter: blur(6px);
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  .sound-toggle:active { transform: scale(0.95); background: rgba(255,215,0,0.2); }
+  .sound-toggle.muted { color: #8892a6; border-color: #555; }
+  body.cg-active .sound-toggle { opacity: 0; pointer-events: none; }
+
+  /* ==== СЦЕНА ==== */
+  .scene {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    max-width: 1100px;
+    z-index: 5;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: max(20px, env(safe-area-inset-top, 20px))
+             max(20px, env(safe-area-inset-right, 20px))
+             max(20px, env(safe-area-inset-bottom, 20px))
+             max(20px, env(safe-area-inset-left, 20px));
+  }
+
+  /* ==== ПОРТРЕТ ==== */
+  .portrait-stage {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    pointer-events: none;
+    z-index: 2;
+    overflow: hidden;
+  }
+
+  .portrait {
+    position: relative;
+    margin-top: 10px;
+    height: 78%;
+    max-height: 700px;
+    width: auto;
+    max-width: 95%;
+    object-fit: contain;
+    filter: drop-shadow(0 25px 50px rgba(0,0,0,0.8))
+            drop-shadow(0 0 60px rgba(255,215,0,0.35));
+    transition: opacity 0.6s ease, transform 0.6s ease;
+    pointer-events: auto;
+    cursor: pointer;
+    -webkit-user-drag: none;
+    opacity: 1;
+  }
+
+  .portrait.float { animation: floatSlow 7s ease-in-out infinite; }
+  @keyframes floatSlow {
+    0%   { transform: translateY(0); }
+    50%  { transform: translateY(22px); }
+    100% { transform: translateY(0); }
+  }
+
+  .portrait.enter-top    { animation: enterTop 1.05s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+  .portrait.enter-bottom { animation: enterBottom 1.05s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+  .portrait.enter-left   { animation: enterLeft 1.05s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+  .portrait.enter-right  { animation: enterRight 1.05s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+
+  @keyframes enterTop    { 0% { transform: translateY(-110vh); } 100% { transform: translateY(0); } }
+  @keyframes enterBottom { 0% { transform: translateY(110vh); }  100% { transform: translateY(0); } }
+  @keyframes enterLeft   { 0% { transform: translateX(-110vw); } 100% { transform: translateX(0); } }
+  @keyframes enterRight  { 0% { transform: translateX(110vw); }  100% { transform: translateX(0); } }
+
+  .portrait.shake { animation: gentleShake 0.9s ease-in-out; }
+  @keyframes gentleShake {
+    0%   { transform: translateX(0); }
+    15%  { transform: translateX(-14px); }
+    30%  { transform: translateX(14px); }
+    45%  { transform: translateX(-10px); }
+    60%  { transform: translateX(10px); }
+    75%  { transform: translateX(-6px); }
+    90%  { transform: translateX(6px); }
+    100% { transform: translateX(0); }
+  }
+
+  .portrait.fade {
+    opacity: 0;
+    transform: scale(0.94) translateY(30px);
+  }
+
+  .portrait-glow {
+    position: absolute;
+    top: 15%; left: 50%;
+    transform: translateX(-50%);
+    width: min(700px, 90vw);
+    height: min(700px, 90vw);
+    background: radial-gradient(circle, rgba(255,215,0,0.22), transparent 65%);
+    pointer-events: none;
+    animation: pulseGlow 4s ease-in-out infinite;
+  }
+  @keyframes pulseGlow { 0%,100% { opacity: 0.5; } 50% { opacity: 0.9; } }
+
+  /* ==== ДИАЛОГ ==== */
+  .dialogue {
+    background: rgba(10, 15, 30, 0.94);
+    border: 3px solid rgba(255,215,0,0.7);
+    border-radius: 20px;
+    padding: 25px 30px;
+    min-height: 200px;
+    box-shadow: 0 15px 50px rgba(0,0,0,0.7), inset 0 0 40px rgba(255,215,0,0.05);
+    position: relative;
+    z-index: 5;
+    animation: slideUp 0.5s ease;
+    backdrop-filter: blur(6px);
+  }
+  @keyframes slideUp {
+    from { transform: translateY(40px); opacity: 0; }
+    to   { transform: translateY(0);    opacity: 1; }
+  }
+
+  .name-tag {
+    position: absolute;
+    top: -18px;
+    left: 20px;
+    background: linear-gradient(135deg, #ffd700, #ffa500);
+    color: #1a1e2e;
+    padding: 7px 22px;
+    border-radius: 30px;
+    font-family: 'Unbounded', sans-serif;
+    font-weight: 700;
+    font-size: clamp(12px, 3vw, 15px);
+    letter-spacing: 0;
+    box-shadow: 0 4px 15px rgba(255,215,0,0.5);
+    white-space: nowrap;
+    max-width: 85%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .name-tag.narrator {
+    background: linear-gradient(135deg, #7a9cff, #5577dd);
+    color: #fff;
+    font-weight: 500;
+    font-style: italic;
+  }
+
+  .text {
+    font-family: 'Onest', sans-serif;
+    font-weight: 400;
+    font-size: clamp(16px, 4vw, 19px);
+    line-height: 1.65;
+    margin: 15px 0 10px;
+    min-height: 70px;
+    color: #e8ecf5;
+  }
+  .text em {
+    font-family: 'Caveat', cursive;
+    font-style: normal;
+    font-size: 1.35em;
+    color: #ffd700;
+    font-weight: 600;
+  }
+
+  /* ==== ОТВЕТЫ ==== */
+  .answers { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; }
+  .answer-btn {
+    background: rgba(255,255,255,0.07);
+    color: #fff;
+    border: 2px solid rgba(255,215,0,0.4);
+    padding: 16px 20px;
+    font-family: 'Onest', sans-serif;
+    font-weight: 500;
+    font-size: clamp(15px, 3.8vw, 17px);
+    border-radius: 12px;
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.2s, border-color 0.2s, transform 0.15s;
+    min-height: 54px;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  .answer-btn:active:not(:disabled) {
+    background: rgba(255,215,0,0.2);
+    border-color: #ffd700;
+    transform: scale(0.99);
+  }
+  .answer-btn.correct {
+    background: linear-gradient(135deg, #2ecc71, #27ae60);
+    border-color: #2ecc71;
+  }
+  .answer-btn.wrong {
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    border-color: #e74c3c;
+  }
+
+  /* ==== КНОПКИ ==== */
+  .btn {
+    background: linear-gradient(135deg, #ffd700, #ffa500);
+    color: #1a1e2e;
+    border: none;
+    padding: 16px 42px;
+    font-family: 'Onest', sans-serif;
+    font-weight: 700;
+    font-size: clamp(16px, 4.2vw, 19px);
+    letter-spacing: 0.3px;
+    border-radius: 50px;
+    cursor: pointer;
+    box-shadow: 0 8px 25px rgba(255,215,0,0.5);
+    transition: transform 0.15s;
+    margin-top: 12px;
+    min-height: 54px;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  .btn:active { transform: scale(0.97); }
+  .center { text-align: center; }
+
+  /* ==== СТРЕЛКА ==== */
+  .continue {
+    position: absolute;
+    right: 18px;
+    bottom: 12px;
+    font-size: 28px;
+    color: #ffd700;
+    cursor: pointer;
+    animation: bounce 1.2s infinite;
+    padding: 14px;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    min-width: 52px;
+    min-height: 52px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .continue:active { transform: scale(0.92); }
+  @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
+
+  /* ==== НАГРАДА ==== */
+  .reward {
+    position: absolute;
+    top: 35%; left: 50%;
+    transform: translateX(-50%);
+    font-family: 'Unbounded', sans-serif;
+    font-weight: 800;
+    font-size: clamp(26px, 7vw, 40px);
+    color: #ffd700;
+    letter-spacing: 0;
+    text-shadow: 0 0 30px #ffd700, 0 0 60px rgba(255,215,0,0.6);
+    animation: rewardAnim 1.8s ease forwards;
+    pointer-events: none;
+    z-index: 30;
+    text-align: center;
+    max-width: 90vw;
+  }
+  @keyframes rewardAnim {
+    0%   { opacity: 0; transform: translate(-50%, 40px) scale(0.4); }
+    25%  { opacity: 1; transform: translate(-50%, 0) scale(1.15); }
+    70%  { opacity: 1; transform: translate(-50%, -10px) scale(1); }
+    100% { opacity: 0; transform: translate(-50%, -70px) scale(0.9); }
+  }
+
+  /* ============================================================
+     ТИТРЫ — ПО НАЖАТИЮ ЭКРАНА
+     ============================================================ */
+  .credits-wrapper {
+    position: fixed;
+    inset: 0;
+    z-index: 20;
+    background: #000;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+  }
+
+  .credits-page {
+    width: 100%;
+    max-width: 720px;
+    max-height: 100%;
+    padding: 40px 24px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    color: #ffd700;
+    font-family: 'Onest', sans-serif;
+    animation: pageFadeIn 0.6s ease;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  @keyframes pageFadeIn {
+    from { opacity: 0; transform: scale(0.96); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+
+  .credits-page-title {
+    font-family: 'Unbounded', sans-serif;
+    font-weight: 800;
+    font-size: clamp(24px, 6vw, 38px);
+    color: #ffd700;
+    letter-spacing: 3px;
+    margin-bottom: 25px;
+    text-transform: uppercase;
+    line-height: 1.2;
+  }
+
+  .credits-page-subtitle {
+    font-family: 'Onest', sans-serif;
+    font-size: clamp(13px, 3.4vw, 16px);
+    color: #8892a6;
+    font-style: italic;
+    margin-bottom: 30px;
+    line-height: 1.6;
+  }
+
+  .credits-section {
+    font-family: 'Unbounded', sans-serif;
+    font-weight: 700;
+    font-size: clamp(14px, 3.6vw, 18px);
+    color: #ffd700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin: 25px 0 15px;
+    position: relative;
+    padding-bottom: 10px;
+    width: 100%;
+  }
+  .credits-section::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #ffd700, transparent);
+  }
+  .credits-section:first-child { margin-top: 0; }
+
+  .credits-row {
+    margin-bottom: 12px;
+    line-height: 1.35;
+    width: 100%;
+  }
+  .credits-role {
+    color: #8892a6;
+    font-size: clamp(10px, 2.8vw, 12px);
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    margin-bottom: 2px;
+  }
+  .credits-name {
+    color: #ffd700;
+    font-family: 'Unbounded', sans-serif;
+    font-size: clamp(12px, 3.2vw, 15px);
+    font-weight: 700;
+  }
+
+  .credits-divider {
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,215,0,0.5), transparent);
+    margin: 25px 0;
+  }
+
+  .credits-author-label {
+    font-family: 'Onest', sans-serif;
+    font-style: italic;
+    font-size: clamp(12px, 3.2vw, 14px);
+    color: #8892a6;
+    margin-bottom: 8px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+  }
+  .credits-author {
+    font-family: 'Unbounded', sans-serif;
+    font-weight: 800;
+    font-size: clamp(24px, 6vw, 38px);
+    color: #ffd700;
+    letter-spacing: 2px;
+    margin: 12px 0;
+    line-height: 1.2;
+    text-transform: uppercase;
+  }
+  .credits-class {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: clamp(13px, 3.4vw, 16px);
+    color: #7a9cff;
+    margin: 8px 0 0;
+    letter-spacing: 4px;
+    font-weight: 600;
+  }
+
+  .credits-thanks {
+    font-family: 'Onest', sans-serif;
+    font-size: clamp(13px, 3.4vw, 16px);
+    color: #8892a6;
+    font-style: italic;
+    margin-top: 20px;
+    line-height: 1.7;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .credits-end {
+    font-family: 'Unbounded', sans-serif;
+    font-weight: 800;
+    font-size: clamp(22px, 5.5vw, 32px);
+    color: #ffd700;
+    letter-spacing: 5px;
+    margin: 25px 0;
+    text-transform: uppercase;
+  }
+
+  .credits-egg {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: clamp(10px, 2.6vw, 12px);
+    color: #555;
+    margin-top: 25px;
+    letter-spacing: 1.5px;
+    line-height: 1.7;
+  }
+
+  /* Подсказка внизу экрана */
+  .credits-hint {
+    position: fixed;
+    bottom: max(20px, env(safe-area-inset-bottom, 20px));
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 25;
+    font-family: 'Onest', sans-serif;
+    font-size: clamp(11px, 2.8vw, 13px);
+    color: #8892a6;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    pointer-events: none;
+    animation: hintPulse 2s ease-in-out infinite;
+    text-align: center;
+  }
+  @keyframes hintPulse {
+    0%,100% { opacity: 0.4; }
+    50%     { opacity: 0.9; }
+  }
+
+  /* Индикатор страниц */
+  .credits-dots {
+    position: fixed;
+    top: max(20px, env(safe-area-inset-top, 20px));
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 25;
+    display: flex;
+    gap: 8px;
+    pointer-events: none;
+  }
+  .credits-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255,215,0,0.25);
+    transition: background 0.3s, transform 0.3s;
+  }
+  .credits-dot.active {
+    background: #ffd700;
+    transform: scale(1.3);
+  }
+
+  /* ==== ПАЗЛ ==== */
+  .puzzle-wrap {
+    margin: 15px 0;
+    display: flex;
+    justify-content: center;
+  }
+  .puzzle {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    gap: 4px;
+    width: min(360px, 70vw);
+    aspect-ratio: 1 / 1;
+    background: #000;
+    padding: 6px;
+    border: 3px solid rgba(255,215,0,0.5);
+    border-radius: 12px;
+    box-shadow: 0 0 40px rgba(255,215,0,0.2);
+  }
+  .puzzle-tile {
+    width: 100%;
+    height: 100%;
+    background-size: 300% 300%;
+    background-repeat: no-repeat;
+    background-color: #1a1e2e;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: transform 0.15s, box-shadow 0.15s, filter 0.2s;
+    -webkit-user-select: none;
+    user-select: none;
+    position: relative;
+    overflow: hidden;
+  }
+  .puzzle-tile:active:not(.locked) {
+    transform: scale(0.98);
+  }
+  .puzzle-tile.selected {
+    box-shadow: 0 0 0 3px #ffd700, 0 0 25px rgba(255,215,0,0.9);
+    transform: scale(1.04);
+    z-index: 2;
+  }
+  .puzzle-tile.locked {
+    cursor: default;
+    filter: brightness(0.85);
+  }
+  .puzzle-tile.correct-flash {
+    animation: correctFlash 0.6s ease;
+  }
+  @keyframes correctFlash {
+    0%,100% { box-shadow: 0 0 0 0 rgba(46,204,113,0); }
+    50%     { box-shadow: 0 0 0 3px #2ecc71, 0 0 20px rgba(46,204,113,0.8); }
+  }
+
+  .puzzle-info {
+    font-family: 'Onest', sans-serif;
+    font-size: 13px;
+    color: #8892a6;
+    text-align: center;
+    font-style: italic;
+    margin-top: 10px;
+  }
+
+  /* ==== КОНФЕТТИ ==== */
+  .confetti {
+    position: fixed; top: -10px;
+    width: 12px; height: 12px;
+    animation: fall 3s linear forwards;
+    z-index: 100;
+    pointer-events: none;
+  }
+  @keyframes fall {
+    to { transform: translateY(105vh) rotate(720deg); opacity: 0; }
+  }
+
+  /* ==== ГАЛКА-ПАСХАЛКА ==== */
+  .egg-check {
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    width: 32px;
+    height: 32px;
+    z-index: 60;
+    cursor: pointer;
+    opacity: 0.15;
+    transition: opacity 0.4s, transform 0.3s;
+    -webkit-user-select: none;
+    user-select: none;
+    font-size: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffd700;
+    font-weight: 700;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .egg-check:active { transform: scale(1.1); }
+  .egg-check.found {
+    opacity: 1;
+    color: #2ecc71;
+    text-shadow: 0 0 12px #2ecc71;
+  }
+  body.cg-active .egg-check { opacity: 0; pointer-events: none; }
+
+  /* ==== ТОСТ ==== */
+  .egg-toast {
+    position: fixed;
+    top: 25%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.8);
+    background: rgba(10, 15, 30, 0.96);
+    border: 3px solid #ffd700;
+    border-radius: 16px;
+    padding: 22px 30px;
+    color: #ffd700;
+    font-family: 'Unbounded', sans-serif;
+    font-weight: 700;
+    font-size: clamp(14px, 3.5vw, 17px);
+    letter-spacing: 0;
+    text-align: center;
+    z-index: 200;
+    opacity: 0;
+    pointer-events: none;
+    box-shadow: 0 0 50px rgba(255,215,0,0.5);
+    transition: opacity 0.4s, transform 0.4s;
+    max-width: 90vw;
+  }
+  .egg-toast.show {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  .egg-toast small {
+    display: block;
+    color: #8892a6;
+    font-family: 'Onest', sans-serif;
+    font-weight: normal;
+    font-size: 13px;
+    margin-top: 8px;
+    font-style: italic;
+  }
+
+  /* ============================================================
+     📱 АДАПТИВ
+     ============================================================ */
+  @media (max-width: 600px) {
+    .scene {
+      padding: max(12px, env(safe-area-inset-top, 12px))
+               max(12px, env(safe-area-inset-right, 12px))
+               max(12px, env(safe-area-inset-bottom, 12px))
+               max(12px, env(safe-area-inset-left, 12px));
+    }
+    .portrait { height: 65%; max-height: 55vh; margin-top: 5px; }
+    .portrait-glow { width: 80vw; height: 80vw; top: 10%; }
+    .dialogue { padding: 20px 18px; min-height: 180px; border-radius: 16px; border-width: 2px; }
+    .name-tag { top: -16px; left: 15px; padding: 6px 16px; font-size: 11px; }
+    .continue { right: 12px; bottom: 10px; font-size: 26px; padding: 12px; }
+    .sound-toggle { width: 42px; height: 42px; font-size: 17px; }
+    .cg-skip { bottom: 20px; right: 20px; padding: 12px 22px; }
+    .puzzle { width: min(300px, 80vw); }
+    .btn { padding: 14px 34px; font-size: 16px; }
+    .answer-btn { padding: 14px 16px; font-size: 15px; }
+    .credits-page { padding: 30px 18px; }
+  }
+  @media (max-width: 380px) {
+    .portrait { height: 58%; max-height: 48vh; }
+    .dialogue { min-height: 160px; padding: 18px 14px; }
+    .text { min-height: 60px; font-size: 15px; }
+    .name-tag { font-size: 10px; }
+    .continue { font-size: 22px; padding: 10px; }
+  }
+  @media (max-height: 500px) and (orientation: landscape) {
+    .portrait { height: 90%; max-height: none; margin-top: 0; }
+    .portrait-glow { width: 60vh; height: 60vh; top: 5%; }
+    .dialogue {
+      padding: 18px 22px;
+      min-height: 130px;
+      max-width: 70%;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .text { font-size: 15px; min-height: 50px; margin: 10px 0 5px; }
+    .name-tag { font-size: 10px; padding: 5px 14px; top: -14px; }
+    .continue { font-size: 22px; bottom: 8px; right: 12px; }
+    .sound-toggle { width: 40px; height: 40px; font-size: 16px; }
+  }
+  @media (min-width: 601px) and (max-width: 1024px) {
+    .portrait { height: 72%; max-height: 65vh; }
+    .dialogue { padding: 24px 28px; min-height: 200px; }
+    .text { font-size: 18px; }
+  }
+  @media (max-height: 420px) {
+    .portrait { height: 95%; }
+    .dialogue { min-height: 120px; padding: 15px 18px; }
+    .text { font-size: 14px; min-height: 40px; }
+    .answers { gap: 6px; margin-top: 8px; }
+    .answer-btn { padding: 10px 14px; font-size: 14px; min-height: 44px; }
+    .btn { padding: 12px 30px; font-size: 15px; min-height: 46px; }
+  }
+  @media (max-height: 600px) and (orientation: portrait) {
+    .dialogue { max-height: 45vh; overflow-y: auto; }
+    .dialogue::-webkit-scrollbar { width: 4px; }
+    .dialogue::-webkit-scrollbar-thumb {
+      background: rgba(255,215,0,0.4);
+      border-radius: 2px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-layer bg-old" id="bgOld"></div>
+<div class="bg-layer bg-new" id="bgNew"></div>
+<div class="bg"></div>
+
+<div class="cg-stage" id="cgStage"></div>
+<button class="cg-skip" id="cgSkip" title="Пропустить">Пропустить ▶</button>
+
+<button class="sound-toggle" id="soundToggle" title="Вкл/выкл звук">🔊</button>
+
+<div class="egg-check" id="eggCheck" title="...">✓</div>
+
+<div class="egg-toast" id="eggToast"></div>
+
+<div class="scene" id="scene"></div>
+
+<div class="loader" id="loader">
+  <div class="loader-title">Утро. Учительская.</div>
+  <div class="loader-bar"><div class="loader-fill" id="loaderFill"></div></div>
+  <div class="loader-percent" id="loaderPercent">0%</div>
+  <div class="loader-status" id="loaderStatus">Подготовка</div>
+</div>
+
+<script>
+/* ============================================================
+   ФОТО ПЕРСОНАЖЕЙ
+   ============================================================ */
+const IMG = {
+  zavuch:    "https://i.imgur.com/Z4gNbB3.png",
+  elin:      "https://i.imgur.com/aUAxtuw.png",
+  dmitryL:   "https://i.imgur.com/eQXAn6i.png",
+  boris:     "https://i.imgur.com/gQ2hYAm.png",
+  dmitryS:   "https://i.imgur.com/KpmW3vD.png",
+  pavel:     "https://i.imgur.com/KpmW3vD.png",
+  elena:     "https://i.imgur.com/rp28iq3.png",
+  petr:      "https://i.imgur.com/edsqIwO.png",
+  hero:      "https://i.imgur.com/BHFtp4w.png"
+};
+
+/* ============================================================
+   ФОНЫ
+   ============================================================ */
+const BG = {
+  uchitelskaya: "https://i.imgur.com/zb7TApJ.jpeg",
+  koridor:      "https://i.imgur.com/FWnRnPX.png",
+  aktovyi:      "https://i.imgur.com/6xioN9x.png",
+  scena:        "https://i.imgur.com/H9cvMRg.png",
+  vecher:       "https://i.imgur.com/U1cqHr0.png"
+};
+
+/* ============================================================
+   CG-КАДРЫ
+   ============================================================ */
+const CG = {
+  notbuk: "https://i.imgur.com/puuntMn.png",
+  zaplod: "https://i.imgur.com/8q5YkQU.png"
+};
+
+/* ============================================================
+   🧩 КАРТИНКА ДЛЯ ПАЗЛА — Дмитрий и Павел
+   ============================================================ */
+const PUZZLE_IMG = "https://i.imgur.com/KpmW3vD.png";
+
+/* ============================================================
+   🎵 ЗВУКИ
+   ============================================================ */
+const AUDIO = {
+  music: "audio/music.mp3",
+  click: "audio/click.mp3",
+  tap:   "audio/tap.mp3"
+};
+
+let musicEl = null;
+let soundMuted = false;
+const audioCache = {};
+
+function playSound(key) {
+  if (soundMuted) return;
+  const url = AUDIO[key];
+  if (!url) return;
+  if (!(key in audioCache)) {
+    const a = new Audio(url);
+    a.preload = 'auto';
+    a.volume = 0.6;
+    a.addEventListener('error', () => {
+      console.warn(`Звук не загрузился: ${url}`);
+      audioCache[key] = null;
+    });
+    audioCache[key] = a;
+  }
+  const el = audioCache[key];
+  if (!el) return;
+  try {
+    el.currentTime = 0;
+    const p = el.play();
+    if (p && p.catch) p.catch(() => {});
+  } catch(e) {}
+}
+
+const SFX = {
+  click: () => playSound('click'),
+  tap:   () => playSound('tap')
+};
+
+function startMusic() {
+  if (!AUDIO.music) return;
+  if (!musicEl) {
+    musicEl = new Audio(AUDIO.music);
+    musicEl.loop = true;
+    musicEl.volume = 0.35;
+    musicEl.preload = 'auto';
+    musicEl.addEventListener('error', () => {
+      console.warn('Музыка не загрузилась:', AUDIO.music);
+      musicEl = null;
+    });
+  }
+  if (!musicEl) return;
+  musicEl.muted = soundMuted;
+  const p = musicEl.play();
+  if (p && p.catch) p.catch(err => console.warn('Автоплей заблокирован:', err));
+}
+
+const soundToggle = document.getElementById('soundToggle');
+soundToggle.addEventListener('click', () => {
+  soundMuted = !soundMuted;
+  if (musicEl) musicEl.muted = soundMuted;
+  soundToggle.textContent = soundMuted ? '🔇' : '🔊';
+  soundToggle.classList.toggle('muted', soundMuted);
+});
+
+/* ============================================================
+   🎨 ФОН
+   ============================================================ */
+let currentBgUrl = null;
+
+function setBackground(url) {
+  if (!url || url === currentBgUrl) return;
+  const oldLayer = document.getElementById('bgOld');
+  const newLayer = document.getElementById('bgNew');
+
+  const preload = new Image();
+  preload.onload = () => {
+    newLayer.style.backgroundImage = `url('${url}')`;
+    newLayer.classList.add('active');
+    setTimeout(() => {
+      oldLayer.style.backgroundImage = `url('${url}')`;
+      newLayer.classList.remove('active');
+    }, 1200);
+    currentBgUrl = url;
+  };
+  preload.onerror = () => console.warn('Фон не загрузился:', url);
+  preload.src = url;
+}
+
+/* ============================================================
+   🎬 CG + кнопка Пропустить
+   ============================================================ */
+let cgTimer = null;
+
+function showCG(url, duration = 10000) {
+  if (!url) return;
+  const stage = document.getElementById('cgStage');
+  const skipBtn = document.getElementById('cgSkip');
+
+  stage.innerHTML = `<img class="cg-image" src="${url}" alt="">`;
+  stage.classList.add('active');
+  document.body.classList.add('cg-active');
+
+  setTimeout(() => skipBtn.classList.add('visible'), 1500);
+  cgTimer = setTimeout(endCG, duration);
+
+  skipBtn.onclick = () => {
+    SFX.click();
+    endCG();
+  };
+}
+
+function endCG() {
+  const stage = document.getElementById('cgStage');
+  const skipBtn = document.getElementById('cgSkip');
+
+  if (cgTimer) { clearTimeout(cgTimer); cgTimer = null; }
+  skipBtn.classList.remove('visible');
+  stage.classList.remove('active');
+  document.body.classList.remove('cg-active');
+  setTimeout(() => { stage.innerHTML = ''; }, 500);
+}
+
+/* ============================================================
+   АВТООПРЕДЕЛЕНИЕ ФОНА
+   ============================================================ */
+function bgByLoc(loc) {
+  if (!loc) return BG.uchitelskaya;
+  const l = loc.toLowerCase();
+  if (l.includes('после концерта')) return BG.vecher;
+  if (l.includes('концерт начинается')) return BG.scena;
+  if (l.includes('актовый зал')) return BG.aktovyi;
+  if (l.includes('сцена')) return BG.scena;
+  if (l.includes('коридор')) return BG.koridor;
+  return BG.uchitelskaya;
+}
+
+/* ============================================================
+   🥚 ПАСХАЛКИ + ДОСТИЖЕНИЯ
+   ============================================================ */
+let easterEggsFound = 0;
+let achievements = [];
+
+function showToast(text, sub) {
+  const toast = document.getElementById('eggToast');
+  toast.innerHTML = text + (sub ? `<small>${sub}</small>` : '');
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 3200);
+}
+
+function unlockAchievement(id, title, desc) {
+  if (achievements.find(a => a.id === id)) return;
+  achievements.push({ id, title, desc });
+  SFX.tap();
+  showToast(`🏆 Достижение: ${title}`, desc);
+}
+
+const eggCheck = document.getElementById('eggCheck');
+eggCheck.addEventListener('click', () => {
+  if (eggCheck.classList.contains('found')) return;
+  eggCheck.classList.add('found');
+  easterEggsFound++;
+  SFX.tap();
+  showToast('Пасхалка найдена.', 'Этот квест сделал Хасполадов Эмиль, 8Т');
+  unlockAchievement('egg1', 'Внимательный', 'Нашёл галку в углу');
+});
+
+let zavuchClicks = 0;
+let continueClicks = 0;
+document.addEventListener('click', (e) => {
+  if (e.target.classList.contains('continue')) {
+    continueClicks++;
+    if (continueClicks === 10 && !window.continueEggDone) {
+      window.continueEggDone = true;
+      continueClicks = 0;
+      easterEggsFound++;
+      SFX.tap();
+      showToast('Спидран-режим.', 'Ты кликнул стрелку 10 раз подряд.');
+      unlockAchievement('egg2', 'Спидран', 'Кликнул ▼ 10 раз подряд');
+    }
+  } else {
+    continueClicks = 0;
+  }
+});
+
+/* ============================================================
+   СЦЕНАРИЙ
+   ============================================================ */
+const script = [
+  { type: "narrate", loc: "Утро. Учительская.", photo: null,
+    text: "Обычное утро. Никто ничего не готовит." },
+  { type: "narrate", loc: "Утро. Учительская.", photo: null,
+    text: "Дмитрий Львович пьёт чай. Борис Кузьмич играет в «Косынку» под столом. Пётр Саныч проверяет тетради. Елена Владимировна пьёт кофе и смотрит в окно. Завуч сидит с закрытыми глазами." },
+  { type: "line", loc: "Утро. Учительская.", name: "Элина Нждеевна", photo: IMG.elin, dir: "left",
+    text: "Там это... День учителя сегодня!" },
+  { type: "narrate", loc: "Утро. Учительская.", photo: null,
+    text: "Пауза. Все смотрят на неё." },
+  { type: "line", loc: "Утро. Учительская.", name: "Завуч", photo: IMG.zavuch, dir: "top",
+    text: "Знаю." },
+  { type: "line", loc: "Утро. Учительская.", name: "Дмитрий Львович", photo: IMG.dmitryL, dir: "right",
+    text: "Как сегодня?! Я думал — завтра!" },
+  { type: "line", loc: "Утро. Учительская.", name: "Борис Кузьмич", photo: IMG.boris, dir: "bottom",
+    text: "Я тоже так думал." },
+  { type: "line", loc: "Утро. Учительская.", name: "Дмитрий Львович", photo: IMG.dmitryL, dir: "right",
+    text: "Ты вообще ни о чём не думаешь. Ты в телефоне сидишь." },
+  { type: "line", loc: "Утро. Учительская.", name: "Борис Кузьмич", photo: IMG.boris, dir: "bottom",
+    text: "Я... я проверяю расписание." },
+  { type: "line", loc: "Утро. Учительская.", name: "Дмитрий Львович", photo: IMG.dmitryL, dir: "right",
+    text: "С телефоном под столом?" },
+  { type: "line", loc: "Утро. Учительская.", name: "Борис Кузьмич", photo: IMG.boris, dir: "bottom",
+    text: "Это фонарик." },
+  { type: "quiz", loc: "Учительская", name: "Завуч", photo: IMG.zavuch, dir: "top",
+    question: "Прежде чем продолжим... Проверю, внимательно ли ты читаешь. Кто сегодня заявил, что День учителя — сегодня?",
+    answers: ["Дмитрий Львович", "Элина Нждеевна", "Борис Кузьмич"],
+    correct: 1, reward: "Учитель" },
+  { type: "narrate", loc: "Утро. Учительская.", photo: null,
+    text: "Дмитрий Сергеевич и Павел Игоревич переглядываются. Улыбаются." },
+  { type: "line", loc: "Утро. Учительская.", name: "Дмитрий Сергеевич", photo: IMG.dmitryS, dir: "left",
+    text: "Ну, мы можем что-нибудь придумать." },
+  { type: "line", loc: "Утро. Учительская.", name: "Павел Игоревич", photo: IMG.pavel, dir: "right",
+    text: "Ты? Придумать? В прошлый раз ты придумал нейросеть, которая рисовала завуча с тремя глазами." },
+  { type: "line", loc: "Утро. Учительская.", name: "Дмитрий Сергеевич", photo: IMG.dmitryS, dir: "left",
+    text: "Это был artistic choice!" },
+  { type: "line", loc: "Утро. Учительская.", name: "Павел Игоревич", photo: IMG.pavel, dir: "right",
+    text: "Это был кошмар. Но смешной." },
+  { type: "line", loc: "Утро. Учительская.", name: "Завуч", photo: IMG.zavuch, dir: "top",
+    text: "Тихо." },
+  { type: "line", loc: "Утро. Учительская.", name: "Завуч", photo: IMG.zavuch, dir: "top",
+    text: "День учителя — сегодня. Концерт — через два часа. Никто ничего не готовил. Это нормально. Мы справимся." },
+  { type: "line", loc: "Утро. Учительская.", name: "Дмитрий Львович", photo: IMG.dmitryL, dir: "right",
+    text: "Но кадеты! Марш!" },
+  { type: "line", loc: "Утро. Учительская.", name: "Завуч", photo: IMG.zavuch, dir: "top",
+    text: "Марш отменяется. Или переносится. Решим по ходу." },
+  { type: "narrate", loc: "Утро. Учительская.", photo: null,
+    text: "Дмитрий Львович открывает рот. Закрывает. Смотрит на Бориса Кузьмича. Тот пожимает плечами." },
+  { type: "narrate", loc: "Коридор. Информатики.", photo: null,
+    text: "Дмитрий Сергеевич и Павел Игоревич идут вместе. Павел ест яблоко. Дмитрий что-то печатает на ходу." },
+  { type: "line", loc: "Коридор. Информатики.", name: "Павел Игоревич", photo: IMG.pavel, dir: "right",
+    text: "Ты знаешь, что сегодня День учителя?" },
+  { type: "line", loc: "Коридор. Информатики.", name: "Дмитрий Сергеевич", photo: IMG.dmitryS, dir: "left",
+    text: "Знал. Забыл. Вспомнил. Забыл again." },
+  { type: "line", loc: "Коридор. Информатики.", name: "Павел Игоревич", photo: IMG.pavel, dir: "right",
+    text: "Как всегда. Ладно. У меня есть идея." },
+  { type: "line", loc: "Коридор. Информатики.", name: "Дмитрий Сергеевич", photo: IMG.dmitryS, dir: "left",
+    text: "Опять нейросеть?" },
+  { type: "line", loc: "Коридор. Информатики.", name: "Павел Игоревич", photo: IMG.pavel, dir: "right",
+    text: "Нет. Игра. Про школу. Я её год писал." },
+  { type: "line", loc: "Коридор. Информатики.", name: "Дмитрий Сергеевич", photo: IMG.dmitryS, dir: "left",
+    text: "Год?! И молчал?" },
+  { type: "line", loc: "Коридор. Информатики.", name: "Павел Игоревич", photo: IMG.pavel, dir: "right",
+    text: "Хотел сюрприз. Но раз День учителя сегодня — сюрприз отменяется." },
+  { type: "line", loc: "Коридор. Информатики.", name: "Дмитрий Сергеевич", photo: IMG.dmitryS, dir: "left",
+    text: "Покажи." },
+  { type: "narrate", loc: "Коридор. Информатики.", photo: null,
+    cg: CG.notbuk, cgDuration: 11000,
+    text: "Павел открывает ноутбук. Показывает. Дмитрий смотрит. Потом на Павла. Потом снова на экран." },
+  { type: "line", loc: "Коридор. Информатики.", name: "Дмитрий Сергеевич", photo: IMG.dmitryS, dir: "left",
+    text: "Это... это гениально." },
+  { type: "line", loc: "Коридор. Информатики.", name: "Павел Игоревич", photo: IMG.pavel, dir: "right",
+    text: "Знаю. Но твоя презентация тоже норм. Давай объединим." },
+  { type: "line", loc: "Коридор. Информатики.", name: "Дмитрий Сергеевич", photo: IMG.dmitryS, dir: "left",
+    text: "Давай. Только без трёх глаз." },
+  { type: "line", loc: "Коридор. Информатики.", name: "Павел Игоревич", photo: IMG.pavel, dir: "right",
+    text: "Без трёх глаз. Обещаю." },
+  { type: "quiz", loc: "Коридор. Информатики.", name: "Дмитрий Сергеевич", photo: IMG.dmitryS, dir: "left",
+    question: "Проверка на внимательность от программистов! Что Павел Игоревич писал целый год?",
+    answers: ["Нейросеть", "Игру про школу", "Презентацию"],
+    correct: 1, reward: "— это тот," },
+  { type: "narrate", loc: "Коридор.", photo: null,
+    text: "Елена Владимировна идёт с кофе. Пётр Саныч навстречу с тетрадями." },
+  { type: "line", loc: "Коридор.", name: "Елена Владимировна", photo: IMG.elena, dir: "left",
+    text: "Доброе утро, Пётр Саныч." },
+  { type: "line", loc: "Коридор.", name: "Пётр Саныч", photo: IMG.petr, dir: "right",
+    text: "Доброе, Елена Владимировна. Вы в курсе, что сегодня День учителя?" },
+  { type: "line", loc: "Коридор.", name: "Елена Владимировна", photo: IMG.elena, dir: "left",
+    text: "В курсе. Элина Нждеевна сказала." },
+  { type: "line", loc: "Коридор.", name: "Пётр Саныч", photo: IMG.petr, dir: "right",
+    text: "И что делать?" },
+  { type: "line", loc: "Коридор.", name: "Елена Владимировна", photo: IMG.elena, dir: "left",
+    text: "Ничего. Всё будет хорошо." },
+  { type: "line", loc: "Коридор.", name: "Пётр Саныч", photo: IMG.petr, dir: "right",
+    text: "Вы всегда так говорите." },
+  { type: "line", loc: "Коридор.", name: "Елена Владимировна", photo: IMG.elena, dir: "left",
+    text: "Потому что это работает. Проверено." },
+  { type: "narrate", loc: "Коридор.", photo: null,
+    text: "Пауза." },
+  { type: "line", loc: "Коридор.", name: "Пётр Саныч", photo: IMG.petr, dir: "right",
+    text: "Я не готовил речь." },
+  { type: "line", loc: "Коридор.", name: "Елена Владимировна", photo: IMG.elena, dir: "left",
+    text: "И не надо. Скажите своими словами. Честно." },
+  { type: "line", loc: "Коридор.", name: "Пётр Саныч", photo: IMG.petr, dir: "right",
+    text: "Честно?" },
+  { type: "line", loc: "Коридор.", name: "Елена Владимировна", photo: IMG.elena, dir: "left",
+    text: "Вы историк. Справитесь." },
+  { type: "quiz", loc: "Коридор.", name: "Елена Владимировна", photo: IMG.elena, dir: "left",
+    question: "Проверю внимательность. Что я всегда говорю, когда всё идёт не по плану?",
+    answers: ["Всё будет плохо", "Всё будет хорошо", "Ничего не будет"],
+    correct: 1, reward: "кто открывает" },
+  { type: "narrate", loc: "Актовый зал. За полчаса до концерта.", photo: null,
+    text: "Никто ничего не готовил. Элина Нждеевна бегает. Герой стоит в сторонке. Дмитрий Львович пытается включить проектор. Тыкает кнопки. Ничего." },
+  { type: "line", loc: "Актовый зал.", name: "Дмитрий Львович", photo: IMG.dmitryL, dir: "right",
+    text: "Этот ваш прогресс!" },
+  { type: "line", loc: "Актовый зал.", name: "Борис Кузьмич", photo: IMG.boris, dir: "bottom",
+    text: "Может, информатика?" },
+  { type: "line", loc: "Актовый зал.", name: "Дмитрий Львович", photo: IMG.dmitryL, dir: "right",
+    text: "Ни за что!" },
+  { type: "narrate", loc: "Актовый зал.", photo: null,
+    text: "Дмитрий Сергеевич и Павел Игоревич проходят мимо. Останавливаются." },
+  { type: "line", loc: "Актовый зал.", name: "Дмитрий Сергеевич", photo: IMG.dmitryS, dir: "left",
+    text: "Пульт. Красная кнопка. Сверху." },
+  { type: "narrate", loc: "Актовый зал.", photo: null,
+    text: "Дмитрий Львович нажимает. Проектор включается." },
+  { type: "line", loc: "Актовый зал.", name: "Дмитрий Львович", photo: IMG.dmitryL, dir: "right",
+    text: "...Спасибо." },
+  { type: "line", loc: "Актовый зал.", name: "Павел Игоревич", photo: IMG.pavel, dir: "right",
+    text: "Не за что. Но если вы ещё раз дёрнете провод — он отключится. Навсегда." },
+  { type: "line", loc: "Актовый зал.", name: "Дмитрий Львович", photo: IMG.dmitryL, dir: "right",
+    text: "Это угроза?" },
+  { type: "line", loc: "Актовый зал.", name: "Дмитрий Сергеевич", photo: IMG.dmitryS, dir: "left",
+    text: "Это физика." },
+  { type: "narrate", loc: "Актовый зал.", photo: null,
+    text: "Они уходят. Смеются. Дмитрий Львович смотрит им вслед." },
+  { type: "line", loc: "Актовый зал.", name: "Дмитрий Львович", photo: IMG.dmitryL, dir: "right",
+    text: "Странные." },
+  { type: "line", loc: "Актовый зал.", name: "Борис Кузьмич", photo: IMG.boris, dir: "bottom",
+    text: "Добрые." },
+  { type: "quiz", loc: "Актовый зал.", name: "Дмитрий Львович", photo: IMG.dmitryL, dir: "right",
+    question: "Так, проверю. Что нужно нажать на пульте, чтобы включить проектор?",
+    answers: ["Синяя кнопка снизу", "Красная кнопка сверху", "Дёрнуть провод"],
+    correct: 1, reward: "дверь," },
+  { type: "narrate", loc: "Сцена. Концерт начинается.", photo: null,
+    text: "Никто не готовился. Но всё идёт само собой." },
+  { type: "line", loc: "Сцена.", name: "Элина Нждеевна", photo: IMG.elin, dir: "left",
+    text: "Сегодня День учителя! И мы... мы не готовились. Но это даже лучше!" },
+  { type: "narrate", loc: "Сцена.", photo: null,
+    text: "Дети смеются. Дмитрий Львович в замешательстве. Борис Кузьмич прячет телефон." },
+  { type: "narrate", loc: "Сцена.", photo: null,
+    text: "Дмитрий Сергеевич и Павел Игоревич выходят. Показывают игру. Про школу. Про генералов. Про историка. Про англичанку. Все смеются. Даже Дмитрий Львович улыбается. Один раз." },
+  { type: "line", loc: "Сцена.", name: "Дмитрий Сергеевич", photo: IMG.dmitryS, dir: "left",
+    text: "Мы не готовились. Но мы — друзья. И это главное." },
+  { type: "line", loc: "Сцена.", name: "Павел Игоревич", photo: IMG.pavel, dir: "right",
+    text: "Он говорит это каждый раз. Но сегодня — правда." },
+  { type: "narrate", loc: "Сцена.", photo: null,
+    cg: CG.zaplod, cgDuration: 12000,
+    text: "Они смеются. Зал аплодирует." },
+  { type: "line", loc: "Сцена.", name: "Елена Владимировна", photo: IMG.elena, dir: "left",
+    text: "Я не готовила речь. Но скажу. День учителя — это не концерт. Не марш. Это мы. Все вместе. И всё будет хорошо." },
+  { type: "line", loc: "Сцена.", name: "Пётр Саныч", photo: IMG.petr, dir: "right",
+    text: "Я тоже не готовил. Но скажу. Быть учителем — это справедливо. И честно. И я рад, что я здесь." },
+  { type: "line", loc: "Сцена.", name: "Завуч", photo: IMG.zavuch, dir: "top",
+    text: "Я завуч." },
+  { type: "narrate", loc: "Сцена.", photo: null,
+    text: "Пауза." },
+  { type: "line", loc: "Сцена.", name: "Завуч", photo: IMG.zavuch, dir: "top",
+    text: "С Днём учителя." },
+  { type: "narrate", loc: "Сцена.", photo: null,
+    text: "Все аплодируют." },
+  { type: "quiz", loc: "Сцена.", name: "Пётр Саныч", photo: IMG.petr, dir: "right",
+    question: "Как историк, проверю: кто сказал, что быть учителем — это справедливо и честно?",
+    answers: ["Елена Владимировна", "Пётр Саныч", "Завуч"],
+    correct: 1, reward: "но войти" },
+  { type: "narrate", loc: "После концерта. Коридор.", photo: null,
+    text: "Дмитрий Сергеевич и Павел Игоревич проходят мимо. Спорят о чём-то. Смеются." },
+  { type: "line", loc: "После концерта. Коридор.", name: "Дмитрий Сергеевич", photo: IMG.dmitryS, dir: "left",
+    text: "Ты видел, как Дмитрий Львович улыбнулся?" },
+  { type: "line", loc: "После концерта. Коридор.", name: "Павел Игоревич", photo: IMG.pavel, dir: "right",
+    text: "Видел. Это было страшно." },
+  { type: "line", loc: "После концерта. Коридор.", name: "Дмитрий Сергеевич", photo: IMG.dmitryS, dir: "left",
+    text: "Это было прекрасно." },
+  { type: "line", loc: "После концерта. Коридор.", name: "Павел Игоревич", photo: IMG.pavel, dir: "right",
+    text: "Это было и то, и другое." },
+  { type: "narrate", loc: "После концерта. Коридор.", photo: null,
+    text: "Они уходят. Смеются. Завуч стоит в сторонке. Смотрит на всё это." },
+  { type: "line", loc: "После концерта. Коридор.", name: "Завуч", photo: IMG.zavuch, dir: "top",
+    text: "Я завуч." },
+  { type: "narrate", loc: "После концерта. Коридор.", photo: null,
+    text: "Пауза." },
+  { type: "line", loc: "После концерта. Коридор.", name: "Завуч", photo: IMG.zavuch, dir: "top",
+    text: "И всё будет хорошо." }
+];
+
+/* ============================================================
+   ЗАГРУЗКА
+   ============================================================ */
+function preloadImages(urls) {
+  const unique = [...new Set(urls.filter(Boolean))];
+  let loaded = 0;
+  const total = unique.length;
+  return new Promise((resolve) => {
+    if (total === 0) return resolve();
+    const updateProgress = (status) => {
+      const percent = Math.round((loaded / total) * 100);
+      document.getElementById('loaderFill').style.width = percent + '%';
+      document.getElementById('loaderPercent').textContent = percent + '%';
+      document.getElementById('loaderStatus').textContent = status;
+    };
+    updateProgress('Загрузка спрайтов');
+    unique.forEach((url) => {
+      const img = new Image();
+      img.onload = () => {
+        loaded++;
+        updateProgress(`Загружено ${loaded} из ${total}`);
+        if (loaded === total) setTimeout(resolve, 400);
+      };
+      img.onerror = () => {
+        loaded++;
+        updateProgress(`Пропущено: ${loaded} из ${total}`);
+        if (loaded === total) setTimeout(resolve, 400);
+      };
+      img.src = url;
+    });
+  });
+}
+
+/* ============================================================
+   ЛОГИКА
+   ============================================================ */
+let current = -1;
+const scene = document.getElementById('scene');
+
+function renderStart() {
+  scene.innerHTML = `
+    <div class="dialogue center">
+      <div class="name-tag narrator">Новелла</div>
+      <div class="text" style="font-size:22px;margin-top:25px;">
+        <h1 style="font-family:'Unbounded',sans-serif;font-weight:800;color:#ffd700;margin:0 0 20px;letter-spacing:0;font-size:clamp(22px,5.5vw,32px);text-shadow:0 0 25px rgba(255,215,0,0.5);line-height:1.3;">
+          Утро.<br>Учительская.
+        </h1>
+        История одного Дня учителя, которого никто не готовил.
+        <p style="margin-top:25px;font-style:italic;color:#8892a6;font-size:0.9em;">
+          Нажми «Начать», чтобы прожить этот день вместе с героями.
+        </p>
+      </div>
+      <button class="btn" onclick="startQuest()">▶ Начать</button>
+    </div>
+  `;
+}
+
+function startQuest() {
+  startMusic();
+  current = 0;
+  renderScene();
+}
+
+function renderScene() {
+  if (current >= script.length) { renderFinal(); return; }
+  const s = script[current];
+
+  setBackground(bgByLoc(s.loc));
+
+  if (s.cg) {
+    showCG(s.cg, s.cgDuration || 10000);
+  }
+
+  const dir = s.dir || 'bottom';
+  const dirClass = `enter-${dir}`;
+
+  const portraitHTML = s.photo
+    ? `<div class="portrait-stage">
+         <div class="portrait-glow"></div>
+         <img class="portrait" id="portraitImg" src="${s.photo}" alt="">
+       </div>` : '';
+
+  let dialogueHTML = '';
+
+  if (s.type === 'narrate') {
+    dialogueHTML = `
+      <div class="dialogue">
+        <div class="name-tag narrator">${s.loc || '...'}</div>
+        <div class="text">${s.text}</div>
+        <div class="continue" onclick="next()">▼</div>
+      </div>`;
+  } else if (s.type === 'line') {
+    dialogueHTML = `
+      <div class="dialogue">
+        <div class="name-tag">${s.name}</div>
+        <div class="text">«${s.text}»</div>
+        <div class="continue" onclick="next()">▼</div>
+      </div>`;
+  } else if (s.type === 'quiz') {
+    dialogueHTML = `
+      <div class="dialogue">
+        <div class="name-tag">❓ ${s.name}</div>
+        <div class="text" style="margin-top:25px;">${s.question}</div>
+        <div class="answers" id="answers">
+          ${s.answers.map((a, i) =>
+            `<button class="answer-btn" onclick="check(${i})">${String.fromCharCode(1040+i)}. ${a}</button>`
+          ).join('')}
+        </div>
+        <div id="fb" style="margin-top:15px;font-size:17px;font-weight:bold;min-height:24px;"></div>
+      </div>`;
+  }
+
+  scene.innerHTML = portraitHTML + dialogueHTML;
+
+  const img = document.getElementById('portraitImg');
+  if (img) {
+    img.classList.add(dirClass);
+    const onEnd = (e) => {
+      if (e.animationName.startsWith('enter')) {
+        img.classList.remove(dirClass);
+        img.classList.add('float');
+        img.removeEventListener('animationend', onEnd);
+      }
+    };
+    img.addEventListener('animationend', onEnd);
+    attachPortraitEvents();
+  }
+}
+
+/* ============================================================
+   🎯 КЛИК ПО ПОРТРЕТУ
+   ============================================================ */
+const CLICK_LINES = {
+  "Завуч": ["Завуч смотрит. Молча.", "Завуч кивает.", "Завуч делает пометку в блокноте.", "Завуч уже всё знал."],
+  "Дмитрий Львович": ["Дмитрий Львович вздыхает.", "«Этот ваш прогресс...»", "Дмитрий Львович смотрит на часы.", "Дмитрий Львович поправляет галстук."],
+  "Борис Кузьмич": ["Борис Кузьмич снова прячет телефон.", "Борис Кузьмич делает вид, что работает.", "«Это фонарик», — говорит Борис Кузьмич.", "Борис Кузьмич улыбается."],
+  "Элина Нждеевна": ["Элина Нждеевна улыбается.", "Элина Нждеевна что-то ищет в сумке.", "Элина Нждеевна уже всё организовала.", "Элина Нждеевна спешит дальше."],
+  "Дмитрий Сергеевич": ["Дмитрий Сергеевич уже что-то печатает.", "«Это был artistic choice!»", "Дмитрий Сергеевич поправляет очки.", "Дмитрий Сергеевич смеётся."],
+  "Павел Игоревич": ["Павел Игоревич ест яблоко.", "Павел Игоревич смотрит на ноутбук.", "Павел Игоревич кивает.", "Павел Игоревич что-то задумал."],
+  "Елена Владимировна": ["Елена Владимировна пьёт кофе.", "Елена Владимировна смотрит в окно.", "«Всё будет хорошо», — говорит Елена Владимировна.", "Елена Владимировна улыбается."],
+  "Пётр Саныч": ["Пётр Саныч проверяет тетради.", "Пётр Саныч задумался.", "Пётр Саныч поправляет очки.", "Пётр Саныч кивает своим мыслям."],
+  "Герой": ["Герой оглядывается.", "Герой улыбается.", "Герой думает о своём.", "Герой пожимает плечами."]
+};
+
+let lastClickLine = "";
+let lastClickTime = 0;
+
+function attachPortraitEvents() {
+  const img = document.getElementById('portraitImg');
+  if (!img) return;
+  img.addEventListener('click', () => {
+    SFX.tap();
+    img.classList.remove('shake');
+    void img.offsetWidth;
+    img.classList.add('shake');
+    setTimeout(() => img.classList.remove('shake'), 900);
+
+    const s = script[current];
+    if (!s) return;
+
+    const now = Date.now();
+    if (now - lastClickTime > 1000) {
+      lastClickTime = now;
+      const lines = CLICK_LINES[s.name];
+      if (lines && lines.length) {
+        let line = lines[Math.floor(Math.random() * lines.length)];
+        if (line === lastClickLine && lines.length > 1) {
+          line = lines[(lines.indexOf(line) + 1) % lines.length];
+        }
+        lastClickLine = line;
+        showToast(line, s.name);
+      }
+    }
+
+    if (s.name === "Завуч") {
+      zavuchClicks++;
+      if (zavuchClicks === 5 && !window.zavuchEggDone) {
+        window.zavuchEggDone = true;
+        easterEggsFound++;
+        showToast('Завуч одобряет.', 'Молча. Кивнув.');
+        unlockAchievement('egg3', 'Друг завуча', 'Кликнул по завучу 5 раз');
+      }
+    }
+  });
+}
+
+function next() {
+  SFX.click();
+  current++;
+  renderScene();
+}
+
+function check(i) {
+  const s = script[current];
+  const btns = document.querySelectorAll('.answer-btn');
+  const fb = document.getElementById('fb');
+
+  if (i === s.correct) {
+    SFX.click();
+    btns[i].classList.add('correct');
+    btns.forEach(b => b.disabled = true);
+    fb.style.color = '#2ecc71';
+    fb.textContent = '✅ Верно!';
+
+    const rw = document.createElement('div');
+    rw.className = 'reward';
+    rw.textContent = s.reward;
+    scene.appendChild(rw);
+
+    const img = document.getElementById('portraitImg');
+    if (img) {
+      img.classList.remove('float');
+      img.classList.add('fade');
+    }
+
+    setTimeout(() => { current++; renderScene(); }, 2000);
+  } else {
+    SFX.click();
+    btns[i].classList.add('wrong');
+    fb.style.color = '#e74c3c';
+    fb.textContent = '❌ Не совсем. Попробуй ещё!';
+    setTimeout(() => btns[i].classList.remove('wrong'), 600);
+  }
+}
+
+/* ============================================================
+   ФИНАЛ — сразу пазл
+   ============================================================ */
+function renderFinal() {
+  showPuzzle();
+}
+
+/* ============================================================
+   🧩 ПАЗЛ
+   ============================================================ */
+let puzzleOrder = [];
+let puzzleSelected = null;
+let puzzleMoves = 0;
+
+function showPuzzle() {
+  SFX.click();
+
+  puzzleOrder = [0,1,2,3,4,5,6,7,8];
+  do {
+    shuffleArr(puzzleOrder);
+  } while (isSolved(puzzleOrder));
+  puzzleSelected = null;
+  puzzleMoves = 0;
+
+  const tilesHTML = puzzleOrder.map((tileIdx, i) => {
+    const col = tileIdx % 3;
+    const row = Math.floor(tileIdx / 3);
+    const bgPos = `${col * 50}% ${row * 50}%`;
+    return `<div class="puzzle-tile" data-pos="${i}" data-tile="${tileIdx}"
+                 style="background-image:url('${PUZZLE_IMG}');background-position:${bgPos};"
+                 onclick="puzzleClick(${i})"></div>`;
+  }).join('');
+
+  scene.innerHTML = `
+    <div class="dialogue">
+      <div class="name-tag">🧩 Пазл</div>
+      <div class="text center" style="margin-top:25px;">
+        <p style="font-family:'Unbounded',sans-serif;font-weight:700;color:#ffd700;font-size:clamp(16px,4vw,20px);">
+          Собери Дмитрия и Павла
+        </p>
+        <p style="margin-top:10px;">
+          Кликай по двум фрагментам, чтобы поменять их местами.
+        </p>
+        <div class="puzzle-wrap">
+          <div class="puzzle" id="puzzle">${tilesHTML}</div>
+        </div>
+        <div class="puzzle-info" id="puzzleInfo">Ходов: 0</div>
+      </div>
+      <div class="center" style="margin-top:10px;">
+        <button class="btn" onclick="skipPuzzle()" style="background:rgba(255,255,255,0.1);color:#8892a6;box-shadow:none;font-size:15px;padding:12px 28px;">
+          Пропустить
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+function shuffleArr(a) {
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+}
+
+function isSolved(order) {
+  return order.every((v, i) => v === i);
+}
+
+function puzzleClick(pos) {
+  const tiles = document.querySelectorAll('.puzzle-tile');
+  const tile = tiles[pos];
+  if (!tile || tile.classList.contains('locked')) return;
+
+  SFX.click();
+
+  if (puzzleSelected === null) {
+    puzzleSelected = pos;
+    tile.classList.add('selected');
+    return;
+  }
+
+  if (puzzleSelected === pos) {
+    tile.classList.remove('selected');
+    puzzleSelected = null;
+    return;
+  }
+
+  const prev = puzzleSelected;
+  [puzzleOrder[prev], puzzleOrder[pos]] = [puzzleOrder[pos], puzzleOrder[prev]];
+  puzzleSelected = null;
+
+  puzzleMoves++;
+  tiles.forEach((t, i) => {
+    t.classList.remove('selected');
+    const tileIdx = puzzleOrder[i];
+    const col = tileIdx % 3;
+    const row = Math.floor(tileIdx / 3);
+    t.style.backgroundPosition = `${col * 50}% ${row * 50}%`;
+    t.dataset.tile = tileIdx;
+  });
+
+  document.getElementById('puzzleInfo').textContent = `Ходов: ${puzzleMoves}`;
+
+  if (isSolved(puzzleOrder)) {
+    tiles.forEach(t => {
+      t.classList.add('locked', 'correct-flash');
+    });
+    SFX.tap();
+    setTimeout(() => puzzleWin(), 800);
+  }
+}
+
+function skipPuzzle() {
+  SFX.click();
+  showCredits(false);
+}
+
+function puzzleWin() {
+  unlockAchievement('puzzle', 'Хранитель истории', `Пазл собран за ${puzzleMoves} ходов`);
+  launchConfetti();
+  setTimeout(() => showCredits(true), 1200);
+}
+
+/* ============================================================
+   🎬 ТИТРЫ — ПО НАЖАТИЮ ЭКРАНА
+   ============================================================ */
+let creditsPage = 0;
+let creditsData = null;
+let creditsPuzzleCompleted = false;
+
+function showCredits(puzzleCompleted) {
+  SFX.click();
+
+  creditsPuzzleCompleted = puzzleCompleted;
+  creditsPage = 0;
+
+  creditsData = [
+    // ===== СТРАНИЦА 1: ПРОИЗВОДСТВО + КАСТИНГ =====
+    {
+      title: "🎬 ТИТРЫ",
+      subtitle: "Производство: ночь, кофе, ещё одна ночь",
+      sections: [
+        {
+          name: "ПРОИЗВОДСТВО",
+          rows: [
+            { role: "Идея", who: "Хасполадов Эмиль" },
+            { role: "Сценарий", who: "Хасполадов Эмиль" },
+            { role: "Режиссура", who: "Хасполадов Эмиль" },
+            { role: "Программирование", who: "Хасполадов Эмиль" },
+            { role: "Дизайн интерфейса", who: "Хасполадов Эмиль" },
+            { role: "Продюсер", who: "Хасполадов Эмиль (сам себя продвинул)" }
+          ]
+        },
+        {
+          name: "КАСТИНГ",
+          rows: [
+            { role: "Завуч", who: "играл сам себя" },
+            { role: "Дмитрий Львович", who: "играл сам себя" },
+            { role: "Элина Нждеевна", who: "играла саму себя" },
+            { role: "Дмитрий Сергеевич", who: "играл сам себя" },
+            { role: "Павел Игоревич", who: "играл сам себя" },
+            { role: "Елена Владимировна", who: "играла саму себя" },
+            { role: "Пётр Саныч", who: "играл сам себя" },
+            { role: "Герой", who: "играл сам себя" }
+          ]
+        }
+      ]
+    },
+
+    // ===== СТРАНИЦА 2: ГРАФИКА + СПЕЦЭФФЕКТЫ =====
+    {
+      title: "🎨 ХУДОЖНИКИ",
+      subtitle: "",
+      sections: [
+        {
+          name: "ГРАФИКА",
+          rows: [
+            { role: "Отрисовка первого пикселя", who: "Хасполадов Эмиль" },
+            { role: "Отрисовка последнего пикселя", who: "Хасполадов Эмиль" },
+            { role: "Отрисовка всех пикселей между ними", who: "Хасполадов Эмиль" },
+            { role: "Отрисовка пикселей, которых нет", who: "тоже Хасполадов Эмиль" },
+            { role: "Отрисовка пикселей, которые никто не заметит", who: "Хасполадов Эмиль" },
+            { role: "Отрисовка пикселей, которые заметил только завуч", who: "Хасполадов Эмиль" },
+            { role: "Отрисовка пикселей, которые завуч не одобрил", who: "удалены" },
+            { role: "Отрисовка пикселей в 3 часа ночи", who: "Хасполадов Эмиль" },
+            { role: "Улыбка Дмитрия Львовича", who: "Хасполадов Эмиль" },
+            { role: "Яблоко Павла Игоревича", who: "Хасполадов Эмиль" },
+            { role: "Три глаза завуча", who: "Дмитрий Сергеевич" }
+          ]
+        },
+        {
+          name: "СПЕЦЭФФЕКТЫ",
+          rows: [
+            { role: "Вылет учителей сверху", who: "гравитация" },
+            { role: "Вылет учителей снизу", who: "антигравитация" },
+            { role: "Вылет учителей слева", who: "ветер" },
+            { role: "Вылет учителей справа", who: "сквозняк в учительской" },
+            { role: "Парение портретов", who: "невесомость" },
+            { role: "Тряска при клике", who: "землетрясение 2 балла" }
+          ]
+        }
+      ]
+    },
+
+    // ===== СТРАНИЦА 3: ЗВУК + ОТЛАДКА =====
+    {
+      title: "🔧 ТЕХНИЧЕСКАЯ ЧАСТЬ",
+      subtitle: "",
+      sections: [
+        {
+          name: "ЗВУК",
+          rows: [
+            { role: "Звук клика", who: "Хасполадов Эмиль" },
+            { role: "Звук тапа", who: "Хасполадов Эмиль" },
+            { role: "Фоновая музыка", who: "Хасполадов Эмиль" },
+            { role: "Тишина в нужный момент", who: "Хасполадов Эмиль" },
+            { role: "Тишина в ненужный момент", who: "тоже он" }
+          ]
+        },
+        {
+          name: "ОТЛАДКА",
+          rows: [
+            { role: "Отладка бага с вылетом портретов", who: "Хасполадов Эмиль" },
+            { role: "Отладка повторной отладки", who: "Хасполадов Эмиль" },
+            { role: "Тестирование", who: "Хасполадов Эмиль" },
+            { role: "Повторное тестирование", who: "Хасполадов Эмиль" },
+            { role: "Финальное тестирование", who: "Хасполадов Эмиль" },
+            { role: "Тестирование тестирования", who: "Хасполадов Эмиль" },
+            { role: "Тестирование тестирования тестирования", who: "перебор" }
+          ]
+        }
+      ]
+    },
+
+    // ===== СТРАНИЦА 4: ПАСХАЛКИ + В РОЛЯХ =====
+    {
+      title: "🥚 СЕКРЕТЫ",
+      subtitle: "",
+      sections: [
+        {
+          name: "ПАСХАЛКИ",
+          rows: [
+            { role: "Пасхалка с галкой ✓", who: "Хасполадов Эмиль" },
+            { role: "Пасхалка с завучем", who: "Завуч (не в курсе)" },
+            { role: "Пасхалка со спидран-режимом", who: "Хасполадов Эмиль" },
+            { role: "Пасхалки внутри пасхалок", who: "Хасполадов Эмиль" }
+          ]
+        },
+        {
+          name: "В РОЛЯХ",
+          rows: [
+            { role: "Марш кадетов", who: "отменён" },
+            { role: "Марш кадетов (дубль 2)", who: "перенесён" },
+            { role: "Проектор в актовом зале", who: "включился с 3-й попытки" },
+            { role: "Провод от проектора", who: "цел (пока что)" },
+            { role: "Телефон под столом", who: "это фонарик" },
+            { role: "Фляжка завуча", who: "— вырезано цензурой —" }
+          ]
+        }
+      ]
+    },
+
+    // ===== СТРАНИЦА 5: ФИНАЛ + БЛАГОДАРНОСТИ =====
+    {
+      title: "🏆 ФИНАЛ",
+      subtitle: "",
+      sections: [
+        {
+          name: "ПАЗЛ",
+          rows: [
+            { role: "Пазл Дмитрия и Павла", who: "Хасполадов Эмиль" },
+            { role: "Игрок, который собрал пазл", who: creditsPuzzleCompleted ? "ты. молодец." : "пропустил, но ладно" }
+          ]
+        },
+        {
+          name: "ОСОБАЯ БЛАГОДАРНОСТЬ",
+          rows: [
+            { role: "Моральная поддержка", who: "Дмитрий Сергеевич и Павел Игоревич" },
+            { role: "Проверка фактов", who: "Пётр Саныч (историк, не подвёл)" },
+            { role: "Кофе в 3 часа ночи", who: "Елена Владимировна" },
+            { role: "Комендантский режим", who: "Завуч" },
+            { role: "Терпение", who: "все учителя" },
+            { role: "Финальное слово", who: "Завуч («Я завуч»)" },
+            { role: "Тот, кто вообще всё это выдумал", who: "Хасполадов Эмиль" },
+            { role: "Тот, кто это дочитал", who: "Ты. Спасибо." }
+          ]
+        }
+      ]
+    }
+  ];
+
+  renderCreditsPage();
+}
+
+function renderCreditsPage() {
+  const page = creditsData[creditsPage];
+
+  const sectionsHTML = page.sections.map(section => `
+    <div class="credits-section">${section.name}</div>
+    ${section.rows.map(r => `
+      <div class="credits-row">
+        <div class="credits-role">${r.role}</div>
+        <div class="credits-name">${r.who}</div>
+      </div>
+    `).join('')}
+  `).join('');
+
+  // Индикатор страниц
+  const dotsHTML = creditsData.map((_, i) =>
+    `<div class="credits-dot ${i === creditsPage ? 'active' : ''}"></div>`
+  ).join('');
+
+  scene.innerHTML = `
+    <div class="credits-wrapper" id="creditsWrapper">
+      <div class="credits-dots">${dotsHTML}</div>
+      <div class="credits-page">
+        <div class="credits-page-title">${page.title}</div>
+        ${page.subtitle ? `<div class="credits-page-subtitle">${page.subtitle}</div>` : ''}
+        ${sectionsHTML}
+      </div>
+      <div class="credits-hint">Тапни, чтобы продолжить</div>
+    </div>
+  `;
+
+  // Клик по обёртке — переход на следующую страницу
+  const wrapper = document.getElementById('creditsWrapper');
+  wrapper.onclick = () => {
+    SFX.click();
+    nextCreditsPage();
+  };
+}
+
+function nextCreditsPage() {
+  creditsPage++;
+
+  if (creditsPage < creditsData.length) {
+    // Ещё есть страницы — рендерим следующую
+    renderCreditsPage();
+  } else {
+    // Все страницы прошли — финальный экран
+    showCreditsFinal();
+  }
+}
+
+function showCreditsFinal() {
+  const achHTML = achievements.length
+    ? `<div style="margin-top:30px;">
+         <div class="credits-author-label" style="margin-bottom:18px;">Достижения</div>
+         ${achievements.map(a => `
+           <div style="margin:8px auto;padding:9px 16px;border:1px solid rgba(255,215,0,0.4);border-radius:20px;font-size:13px;color:#ffd700;max-width:380px;font-family:'Onest',sans-serif;">
+             🏆 ${a.title}
+           </div>
+         `).join('')}
+       </div>`
+    : '';
+
+  scene.innerHTML = `
+    <div class="credits-wrapper">
+      <div class="credits-page">
+        <div class="credits-author-label">финальный титр</div>
+        <div class="credits-author">Хасполадов<br>Эмиль</div>
+        <div class="credits-class">8 «Т» класс</div>
+
+        <div class="credits-divider"></div>
+
+        <div class="credits-thanks">
+          Спасибо всем учителям за терпение,<br>
+          юмор и знания.<br><br>
+          С Днём Учителя! 💐
+        </div>
+
+        ${achHTML}
+
+        <div class="credits-egg">
+          Пасхалок найдено: ${easterEggsFound} / 3<br>
+          Пазл: ${creditsPuzzleCompleted ? 'собран ✓' : 'пропущен'}
+        </div>
+
+        <div class="credits-end">КОНЕЦ</div>
+
+        <button class="btn" onclick="event.stopPropagation(); location.reload()">🔄 Пройти снова</button>
+      </div>
+    </div>
+  `;
+
+  launchConfetti();
+}
+
+/* ============================================================
+   КОНФЕТТИ
+   ============================================================ */
+function launchConfetti() {
+  const colors = ['#ffd700', '#ff6b6b', '#4ecdc4', '#a29bfe', '#fd79a8', '#55efc4'];
+  for (let i = 0; i < 90; i++) {
+    const c = document.createElement('div');
+    c.className = 'confetti';
+    c.style.left = Math.random() * 100 + 'vw';
+    c.style.background = colors[Math.floor(Math.random() * colors.length)];
+    c.style.animationDelay = Math.random() * 1.5 + 's';
+    c.style.animationDuration = (2 + Math.random() * 2) + 's';
+    c.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+    document.body.appendChild(c);
+    setTimeout(() => c.remove(), 5000);
+  }
+}
+
+/* ============================================================
+   СТАРТ
+   ============================================================ */
+(async function init() {
+  const oldLayer = document.getElementById('bgOld');
+  oldLayer.style.backgroundImage = `url('${BG.uchitelskaya}')`;
+  currentBgUrl = BG.uchitelskaya;
+
+  const allUrls = [
+    ...Object.values(IMG),
+    ...Object.values(BG),
+    ...Object.values(CG),
+    PUZZLE_IMG
+  ];
+  await preloadImages(allUrls);
+
+  const loader = document.getElementById('loader');
+  loader.classList.add('hidden');
+  setTimeout(() => {
+    renderStart();
+    loader.remove();
+  }, 500);
+})();
+
+document.addEventListener('visibilitychange', () => {
+  if (!musicEl) return;
+  if (document.hidden) {
+    musicEl.pause();
+  } else if (!soundMuted) {
+    musicEl.play().catch(() => {});
+  }
+});
+
+document.addEventListener('touchstart', function unlockAudio() {
+  Object.keys(AUDIO).forEach(key => {
+    if (!AUDIO[key] || (key in audioCache)) return;
+    const a = new Audio(AUDIO[key]);
+    a.preload = 'auto';
+    audioCache[key] = a;
+  });
+  document.removeEventListener('touchstart', unlockAudio);
+}, { once: true });
+
+/* Отключаем двойной клик-зум */
+document.addEventListener('dblclick', (e) => e.preventDefault(), { passive: false });
+
+/* Отключаем контекстное меню при долгом нажатии */
+document.addEventListener('contextmenu', (e) => {
+  if (e.target.tagName !== 'INPUT') e.preventDefault();
+});
+</script>
+</body>
+</html>
